@@ -24,6 +24,7 @@ view : Model -> Html Msg
 view model =   
     let
         _ = Debug.log "view" ()
+        random_str = "random-str-for-unique-modal"
     in
     
     div [ class "fixed inset-0 flex items-center justify-center" ]
@@ -35,16 +36,16 @@ view model =
             [ text "Open dialog"
             ]
         , Dialog.view
-            { title = div [] []
-            , dialog_state = model.isModalOpen
+            { dialog_state = model.isModalOpen
+            , random_str = random_str  
             , dialog_panel =
                 div [ class "realative z-10"  ]
                     [ div [ class "fixed inset-0 overflow-y-auto" ]
                         [ backdrop
                         , div [ class "flex min-h-full items-center justify-center p-4 text-center" ]
                             [ div [ class "w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all" ]
-                                [ h3 [ class "text-lg font-medium leading-6 text-gray-900" ] [ text "Payment successful" ]
-                                , p [ class "text-sm text-gray-500" ] [ text "Your payment has been successfully submitted. We've sent you an email with all of the details of your order." ]
+                                [ Dialog.title_component_wrapper random_str <| h3 [ class "text-lg font-medium leading-6 text-gray-900" ] [ text "Payment successful" ]
+                                , Dialog.body_component_wrapper random_str <| div [] [p [ class "text-sm text-gray-500" ] [ text "Your payment has been successfully submitted. We've sent you an email with all of the details of your order." ]
                                 , button
                                     [ type_ "button"
                                     , tabindex 0
@@ -52,6 +53,7 @@ view model =
                                     , onClick ToggleDialogMenu
                                     ]
                                     [ text "Got it, thanks!" ]
+                                ]
                                 ]
                             ]
                         ]
