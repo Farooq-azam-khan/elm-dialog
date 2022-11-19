@@ -19,19 +19,19 @@ type Msg
     = ToggleDialogMenu | RandomString String | RandomString2 String | ToggleDialogMenu2 
 
 
-backdrop : Html Msg
-backdrop =
-    button [class "fixed inset-0 w-full bg-orange-200 bg-opacity-25", tabindex -1, onClick ToggleDialogMenu] [ ]
+backdrop : Msg -> Html Msg
+backdrop toggle_msg =
+    button [class "fixed inset-0 w-full bg-orange-200 bg-opacity-25", tabindex -1, onClick toggle_msg] [ ]
 
 render__modal : Maybe Dialog.DialogComp -> Msg -> Html Msg 
-render__modal modal close_msg =  
+render__modal modal toggle_msg =  
     case modal of 
         Just dialog_comp -> 
                     Dialog.view 
                         dialog_comp 
                         [ class "realative z-10"  ]
                         (div [ class "fixed inset-0 overflow-y-auto" ]
-                                [ backdrop
+                                [ backdrop toggle_msg 
                                 , div [ class "flex min-h-full items-center justify-center p-4 text-center" ]
                                     [ div [ class "w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all" ]
                                         [ Dialog.title_component_wrapper dialog_comp "h3" [ class "text-lg font-medium leading-6 text-gray-900" ] [ text "Payment successful" ]
@@ -40,7 +40,7 @@ render__modal modal close_msg =
                                             [ type_ "button"
                                             , tabindex 0
                                             , class "inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
-                                            , onClick close_msg -- ToggleDialogMenu
+                                            , onClick toggle_msg
                                             ]
                                             [ text "Got it, thanks!" ]
                                         ]
@@ -100,15 +100,16 @@ update msg model =
         ToggleDialogMenu2 ->
             let
                 maybe_second_modal_dialog = model.second_dialog_comp
-                updated_modal_dialog = case maybe_second_modal_dialog of 
-                                            Just dialog -> 
+                updated_modal_dialog = Maybe.map (\dialog -> 
                                                 case dialog.dialog_state  of
                                                     DialogIsClosed ->
-                                                        Just { dialog | dialog_state = DialogIsOpen}
+                                                        { dialog | dialog_state = DialogIsOpen}
 
                                                     DialogIsOpen ->
-                                                        Just { dialog | dialog_state = DialogIsClosed}
-                                            Nothing -> Nothing  
+                                                        { dialog | dialog_state = DialogIsClosed}
+                                                ) maybe_second_modal_dialog
+
+
                                                 
             in
             ({ model | second_dialog_comp = updated_modal_dialog }, Cmd.none)
